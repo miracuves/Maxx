@@ -160,13 +160,6 @@ class ServiceNotification(
             ).setShowsUserInterface(false).build()
             it.addAction(closeAction)
 
-            val switchAction = NotificationCompat.Action.Builder(
-                0, service.getString(R.string.action_switch), PendingIntent.getActivity(
-                    service, 0, Intent(service, SwitchActivity::class.java), flags
-                )
-            ).setShowsUserInterface(false).build()
-            it.addAction(switchAction)
-
             val resetUpstreamAction = NotificationCompat.Action.Builder(
                 0, service.getString(R.string.reset_connections),
                 PendingIntent.getBroadcast(
