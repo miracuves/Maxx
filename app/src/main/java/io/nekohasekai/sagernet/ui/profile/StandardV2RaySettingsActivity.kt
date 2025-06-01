@@ -99,6 +99,7 @@ abstract class StandardV2RaySettingsActivity : ProfileSettingsActivity<StandardV
         }
 
         uuid.preference.summaryProvider = PasswordSummaryProvider
+        password.preference.summaryProvider = PasswordSummaryProvider
 
         type.preference.isVisible = !isHttp
         uuid.preference.isVisible = !isHttp
