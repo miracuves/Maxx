@@ -4,7 +4,7 @@
 <string name="acquire_wake_lock_summary">Сохранять CPU включенным</string>
 <string name="action_download">СКАЧАТЬ</string>
 <string name="action_export">Экспортировать</string>
-<string name="action_export_clipboard">Экспорт в буфер обмена</string>
+<string name="action_export_clipboard">Экспорт в буфер</string>
 <string name="action_export_err">Не удалось экспортировать.</string>
 <string name="action_export_file">Экспорт в файл</string>
 <string name="action_export_msg">Успешно экспортировано!</string>
@@ -16,7 +16,7 @@
 <string name="action_switch">Переключить</string>
 <string name="add_profile">Добавить профиль</string>
 <string name="add_profile_methods_manual_settings">Ручные настройки</string>
-<string name="add_profile_methods_scan_qr_code">Отсканировать QR-код</string>
+<string name="add_profile_methods_scan_qr_code">Сканировать QR-код</string>
 <string name="ads">Реклама</string>
 <string name="allow_access">Разрешить подключения из локальной сети</string>
 <string name="allow_access_sum">Привязать входящие серверы к 0.0.0.0</string>
@@ -53,7 +53,7 @@
 <string name="bottomsheet_action_expand_halfway">Развернуть наполовину</string>
 <string name="bottomsheet_drag_handle_clicked">Двойное нажатие на маркер перемещения</string>
 <string name="bottomsheet_drag_handle_content_description">Маркер перемещения</string>
-<string name="bypass_apps">Обход</string>
+<string name="bypass_apps">обходить</string>
 <string name="bypass_lan_in_core">Обход LAN в ядре</string>
 <string name="cag_dns">Настройки DNS</string>
 <string name="cag_misc">Прочие настройки</string>
@@ -72,15 +72,15 @@
 <string name="clear_text_end_icon_content_description">Очистить текстовое поле</string>
 <string name="clear_traffic_statistics">Очистить статистику трафика</string>
 <string name="cleartext_http_warning">Передача HTTP-трафика в виде открытого текста небезопасна</string>
-<string name="clipboard_empty">Буфер обмена пуст</string>
+<string name="clipboard_empty">Буфер пуст</string>
 <string name="config_settings">Настройки конфигурации</string>
 <string name="config_type">Тип конфигурации</string>
 <string name="confirm">Подтвердить</string>
 <string name="connect">Подключиться</string>
 <string name="connecting">Подключение…</string>
 <string name="connection_test">Тест подключения</string>
-<string name="connection_test_available">Успех: соединение HTTP заняло %d мс</string>
-<string name="connection_test_available_http">Успех: соединение HTTP заняло %d мс</string>
+<string name="connection_test_available">Успешно: соединение по HTTPS заняло %d мс</string>
+<string name="connection_test_available_http">Успешно: соединение по HTTP заняло %d мс</string>
 <string name="connection_test_clear_results">Очистить результаты теста</string>
 <string name="connection_test_delete_unavailable">Удалить недоступные</string>
 <string name="connection_test_domain_not_found">Домен не найден</string>
@@ -95,7 +95,7 @@
 <string name="connection_test_url">URL-адрес проверки подключения</string>
 <string name="connection_test_url_test">URL Тест</string>
 <string name="copy">Копировать</string>
-<string name="copy_toast_msg">Ссылка скопирована в буфер обмена.</string>
+<string name="copy_toast_msg">Ссылка скопирована в буфер.</string>
 <string name="create_shortcut">Создать ярлык</string>
 <string name="custom_config">Пользовательская конфигурация</string>
 <string name="custom_config_json">Пользовательская конфигурация JSON</string>
@@ -224,7 +224,7 @@
 <string name="material_timepicker_am">AM</string>
 <string name="material_timepicker_pm">PM</string>
 <string name="menu_about">О приложении</string>
-<string name="menu_configuration">Конфигурация</string>
+<string name="menu_configuration">Подключения</string>
 <string name="menu_group">Группы</string>
 <string name="menu_log">Журналы</string>
 <string name="menu_route">Маршруты</string>
@@ -271,8 +271,8 @@
 <string name="not_set">Не указано</string>
 <string name="obfs">Obfs</string>
 <string name="obfs_param">Параметры Obfs</string>
-<string name="off">Выключенный</string>
-<string name="on">Включено</string>
+<string name="off">выкл.</string>
+<string name="on">вкл.</string>
 <string name="only">Исключительно</string>
 <string name="ooc_warning">Предупреждение</string>
 <string name="oss_licenses">Лицензии с открытым исходным кодом</string>
@@ -293,8 +293,8 @@
 <string name="port_proxy">Порт прокси SOCKS5</string>
 <string name="port_transproxy">Транспрокси-порт</string>
 <string name="prefer">Предпочитать</string>
-<string name="preference_copied">Текст \"%1$s\" скопирован в буфер обмена</string>
-<string name="profile_config">Конфигурация профиля</string>
+<string name="preference_copied">Текст \"%1$s\" скопирован в буфер</string>
+<string name="profile_config">Настр. подключения</string>
 <string name="profile_empty">Пожалуйста, выберите профиль</string>
 <string name="profile_import">Импортировать профиль</string>
 <string name="profile_import_message">Подтвердите, что хотите импортировать профиль %s?</string>
@@ -310,9 +310,9 @@
 <string name="proxied_apps_summary">Настроить режим VPN для выбранных приложений</string>
 <string name="proxy_cat">Настройки сервера</string>
 <string name="proxy_chain">Прокси-цепочка</string>
-<string name="quick_toggle">Переключить</string>
+<string name="quick_toggle">Включить</string>
 <string name="reboot_required">Не удалось запустить службу VPN. Возможно, вам потребуется перезагрузить устройство.</string>
-<string name="remote_dns">Удаленный DNS</string>
+<string name="remote_dns">Внешний DNS</string>
 <string name="remove_duplicate">Удалить дубликаты серверов</string>
 <string name="reset_connections">Сбросить соединения</string>
 <string name="resolve_destination">Определить адрес назначения</string>
@@ -322,8 +322,8 @@
 <string name="route_asset_status">Локальная версия: %s</string>
 <string name="route_asset_updated">Обновлено</string>
 <string name="route_assets">Ресурсы</string>
-<string name="route_block">Блокировать</string>
-<string name="route_bypass">Обход</string>
+<string name="route_block">блокировать</string>
+<string name="route_bypass">обходить</string>
 <string name="route_bypass_domain">Правило домена для %s</string>
 <string name="route_bypass_ip">Правило IP для %s</string>
 <string name="route_for">Правило для %s</string>
@@ -336,7 +336,7 @@
 <string name="route_opt_bypass_lan">Обход LAN</string>
 <string name="route_play_store">Правило Play Store для %s</string>
 <string name="route_profile">Выбрать профиль…</string>
-<string name="route_proxy">Прокси</string>
+<string name="route_proxy">проксировать</string>
 <string name="route_reset">Сброс</string>
 <string name="route_rules_official">Официальный</string>
 <string name="route_rules_provider">Поставщик ресурсов правил</string>
@@ -344,12 +344,12 @@
 <string name="scanning">Сканирование…</string>
 <string name="search_apps">Поиск…</string>
 <string name="search_menu_title">Поиск</string>
-<string name="security">Шифрование транспортного уровня</string>
+<string name="security">Шифрование</string>
 <string name="security_settings">Настройки безопасности</string>
 <string name="select_apps">Выберите приложения</string>
 <string name="select_profile">Выбрать профиль</string>
 <string name="server_address">Сервер</string>
-<string name="server_port">Удаленный порт</string>
+<string name="server_port">Порт</string>
 <string name="service_failed">Не удалось:</string>
 <string name="service_mode">Сервисный режим</string>
 <string name="service_mode_proxy">Только прокси</string>
@@ -365,7 +365,7 @@
 <string name="show_direct_speed">Показать прямую скорость</string>
 <string name="show_direct_speed_sum">Также в уведомлении показывать скорость трафика без прокси</string>
 <string name="show_group_in_notification">Показывать название группы в уведомлении</string>
-<string name="show_system_apps">Показать системные приложения</string>
+<string name="show_system_apps">Показать системн. приложения</string>
 <string name="sni">Server Name Indication (SNI)</string>
 <string name="sniff_routing">Перехватывать результат для Маршрутизации</string>
 <string name="speed">%s/с</string>
@@ -401,7 +401,6 @@
 <string name="tcp_keep_alive_interval">Интервал доставки пакетов TCP keep-alive</string>
 <string name="telegram">Канал обновлений в Telegram</string>
 <string name="theme">Тема</string>
-<string name="tile_title">Переключатель</string>
 <string name="tls">Использовать TLS</string>
 <string name="tls_camouflage_settings">Настройки защиты TLS</string>
 <string name="tools_network">Сеть</string>
@@ -420,7 +419,7 @@
 <string name="update_when_connected_only_sum">Предотвратить утечку IP-адреса</string>
 <string name="use_selector">Использовать селектор</string>
 <string name="username">Имя пользователя</string>
-<string name="username_opt">Имя пользователя (необязательно)</string>
+<string name="username_opt">Пользователь (необязательно)</string>
 <string name="utls_fingerprint">Отпечаток uTLS</string>
 <string name="uuid">Логин пользователя</string>
 <string name="v7_preference_off">ВЫКЛ.</string>
@@ -441,4 +440,5 @@
 <string name="ws_path">Путь к WebSocket</string>
 <string name="xtls_flow">Flow (подпротокол VLESS)</string>
 <string name="yes">Да</string>
+<string name="add_profile_other">Другое&#8230;</string>
 </resources>

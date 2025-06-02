@@ -183,7 +183,7 @@
     </string-array>
 
     <string-array name="route_protocol_entry">
-        <item>TCP and UDP</item>
+        <item>TCP/UDP</item>
         <item>TCP</item>
         <item>UDP</item>
     </string-array>

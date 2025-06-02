@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Dum-Dum</string>
+    <string name="app_name" translatable="false">DumDum</string>
     <string name="app_name_long" translatable="false">Dum-Dum — a cute way of calling someone Dumb.</string>
     <string name="app_desc" translatable="false">Simple Android client for SOCKS, HTTP &amp; HTTPS proxies, written in Kotlin.</string>
     <string name="project">Project</string>
@@ -10,14 +10,14 @@
     <string name="app_version">Version</string>
     <string name="version_x">Version (%s)</string>
     <string name="logcat">Export debug information</string>
-    <string name="menu_configuration">Configuration</string>
+    <string name="menu_configuration">Connections</string>
     <string name="menu_group">Group</string>
     <string name="menu_about">About</string>
     <string name="theme">Theme</string>
     <string name="document">Document</string>
     <string name="group_default">Ungrouped</string>
     <string name="quick_toggle">Toggle</string>
-    <string name="tile_title">Switcher</string>
+    <string name="tile_title" translatable="false">DumDum</string>
     <string name="menu_traffic">Traffic</string>
     <string name="menu_dashboard">sing-box Dashboard</string>
     <!-- externel -->
@@ -172,13 +172,13 @@
     <string name="tcp_keep_alive_interval">TCP keep active packet delivery interval</string>
     <string name="proxied_apps">Apps VPN mode</string>
     <string name="proxied_apps_summary">Configure VPN mode for selected apps</string>
-    <string name="on">On</string>
-    <string name="off">Off</string>
+    <string name="on">on</string>
+    <string name="off">off</string>
     <string name="search_apps">Search…</string>
     <string name="scanning">Scanning…</string>
     <string name="invert_selections">Invert selections</string>
     <string name="clear_selections">Clear selections</string>
-    <string name="bypass_apps">Bypass</string>
+    <string name="bypass_apps">bypass</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="auto_connect">Auto Connect</string>
     <string name="auto_connect_summary">Enable proxy on startup/app update if it was running before</string>
@@ -248,7 +248,7 @@
         install one, such as Material Files.</string>
     <!-- share -->
     <!-- profile -->
-    <string name="profile_config">Profile config</string>
+    <string name="profile_config">Connection config</string>
     <string name="delete">Remove</string>
     <string name="delete_confirm_prompt">Are you sure you want to remove this profile?</string>
     <string name="share_qr_nfc">QR code</string>
@@ -565,5 +565,5 @@
     <string name="padding">Padding</string>
     <string name="network_change_reset_connections">Reset outbound connections when network changes</string>
     <string name="wake_reset_connections">Reset outbound connections when device wake from sleep</string>
-    <string name="add_profile_other_methods">Other Methods&#8230;</string>
+    <string name="add_profile_other">Other&#8230;</string>
 </resources>

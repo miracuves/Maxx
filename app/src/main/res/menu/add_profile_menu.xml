@@ -20,7 +20,7 @@
             <item
                 android:id="@+id/action_new_http"
                 android:title="@string/action_http" />
-            <item android:title="@string/add_profile_other_methods">
+            <item android:title="@string/add_profile_other">
                 <menu>
                     <item
                         android:id="@+id/action_scan_qr_code"
