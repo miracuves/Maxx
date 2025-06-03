@@ -62,7 +62,7 @@
             app:key="profileTrafficStatistics"
             app:summary="@string/profile_traffic_statistics_summary"
             app:title="@string/profile_traffic_statistics"
-            app:isPreferenceVisible="true" />
+            app:isPreferenceVisible="false" />
         <SwitchPreference
             app:defaultValue="false"
             app:icon="@drawable/ic_baseline_speed_24"

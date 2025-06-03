@@ -83,13 +83,6 @@ class ServiceNotification(
                 )
                 it.setContentText(speedSimple)
             }
-            it.setSubText(
-                service.getString(
-                    R.string.traffic,
-                    Formatter.formatFileSize(service, stats.txTotal),
-                    Formatter.formatFileSize(service, stats.rxTotal)
-                )
-            )
         }
         update()
     }

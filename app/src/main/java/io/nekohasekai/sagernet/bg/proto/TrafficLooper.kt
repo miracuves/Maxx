@@ -24,7 +24,6 @@ class TrafficLooper
     suspend fun stop() {
         job?.cancel()
         // finally traffic post
-        if (!DataStore.profileTrafficStatistics) return
         val traffic = mutableMapOf<Long, TrafficData>()
         data.proxy?.config?.trafficMap?.forEach { (_, ents) ->
             for (ent in ents) {
@@ -61,14 +60,11 @@ class TrafficLooper
         oldData?.apply {
             tag = selectorNowFakeTag
             ignore = true
-            // post traffic when switch
-            if (DataStore.profileTrafficStatistics) {
-                data.proxy?.config?.trafficMap?.get(tag)?.firstOrNull()?.let {
-                    it.rx = rx
-                    it.tx = tx
-                    runOnDefaultDispatcher {
-                        ProfileManager.updateProfile(it) // update DB
-                    }
+            data.proxy?.config?.trafficMap?.get(tag)?.firstOrNull()?.let {
+                it.rx = rx
+                it.tx = tx
+                runOnDefaultDispatcher {
+                    ProfileManager.updateProfile(it) // update DB
                 }
             }
         }
@@ -83,7 +79,6 @@ class TrafficLooper
     private suspend fun loop() {
         val delayMs = DataStore.speedInterval.toLong()
         val showDirectSpeed = DataStore.showDirectSpeed
-        val profileTrafficStatistics = DataStore.profileTrafficStatistics
         if (delayMs == 0L) return
 
         var trafficUpdater: TrafficUpdater? = null
@@ -165,12 +160,10 @@ class TrafficLooper
                 data.binder.broadcast { b ->
                     if (data.binder.callbackIdMap[b] == SagerConnection.CONNECTION_ID_MAIN_ACTIVITY_FOREGROUND) {
                         b.cbSpeedUpdate(speed)
-                        if (profileTrafficStatistics) {
-                            idMap.forEach { (id, item) ->
-                                b.cbTrafficUpdate(
-                                    TrafficData(id = id, rx = item.rx, tx = item.tx) // display
-                                )
-                            }
+                        idMap.forEach { (id, item) ->
+                            b.cbTrafficUpdate(
+                                TrafficData(id = id, rx = item.rx, tx = item.tx) // display
+                            )
                         }
                     }
                 }
