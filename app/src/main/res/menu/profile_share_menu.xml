@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/action_standard_qr"
+        android:title="@string/share_qr_nfc" />
+    <item
+        android:id="@+id/action_standard_clipboard"
+        android:title="@string/action_export_clipboard" />
+    <item
         android:id="@+id/action_group_qr"
-        android:title="@string/share_qr_nfc">
+        android:title="@string/share_qr_nfc"
+        android:visible="false">
         <menu>
             <item
                 android:id="@+id/action_standard_qr"
@@ -14,7 +21,8 @@
     </item>
     <item
         android:id="@+id/action_group_clipboard"
-        android:title="@string/action_export_clipboard">
+        android:title="@string/action_export_clipboard"
+        android:visible="false">
         <menu>
             <item
                 android:id="@+id/action_standard_clipboard"
@@ -26,8 +34,8 @@
     </item>
     <item
         android:id="@+id/action_group_configuration"
-
-        android:title="@string/menu_configuration">
+        android:title="@string/menu_configuration"
+        android:visible="false">
         <menu>
             <item
                 android:id="@+id/action_config_export_clipboard"

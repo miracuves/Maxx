@@ -240,9 +240,9 @@
     <string name="action_export">Export</string>
     <string name="action_import">Import from buffer</string>
     <string name="action_import_file">Import from file</string>
-    <string name="action_export_msg">Successfully export!</string>
+    <string name="action_export_msg">Successfully exported!</string>
     <string name="action_export_err">Failed to export.</string>
-    <string name="action_import_msg">Successfully import!</string>
+    <string name="action_import_msg">Successfully imported!</string>
     <string name="action_import_err">Failed to import.</string>
     <string name="file_manager_missing">Your device lacks an Android standard file selector, please
         install one, such as Material Files.</string>
