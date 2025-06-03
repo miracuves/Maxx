@@ -74,7 +74,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         MaterialAboutActionItem.Builder()
                         .icon(R.drawable.ic_baseline_update_24)
                         .text(R.string.app_version)
-                        .subText(versionName)
+                        .subText(versionName + System.lineSeparator() + Libcore.versionBox().lines().first())
                         .setOnClickAction {
                             requireContext().launchCustomTab(
                                 "https://github.com/tiaga/Dum-Dum/releases"
