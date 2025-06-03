@@ -77,7 +77,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         .subText(versionName + System.lineSeparator() + Libcore.versionBox().lines().first())
                         .setOnClickAction {
                             requireContext().launchCustomTab(
-                                "https://github.com/tiaga/Dum-Dum/releases"
+                                "https://github.com/Project-Mandarin/DumDum/releases"
                             )
                         }
                         .build())
@@ -87,7 +87,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         .text(R.string.github)
                         .setOnClickAction {
                             requireContext().launchCustomTab(
-                                "https://github.com/tiaga/Dum-Dum"
+                                "https://github.com/Project-Mandarin/DumDum"
                             )
                         }
                         .build())

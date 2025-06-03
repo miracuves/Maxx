@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name_long">Dum-Dum (англ. /dʌm.dʌm/) — милый способ назвать кого-то глупым.</string>
+    <string name="app_desc">Простой Android-клиент для SOCKS, HTTP и HTTPS прокси, написанный на Kotlin.</string>
     <string name="acquire_wake_lock">Использовать WakeLock</string>
     <string name="acquire_wake_lock_summary">Сохранять CPU включенным</string>
     <string name="action_download">СКАЧАТЬ</string>

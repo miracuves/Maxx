@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">DumDum</string>
-    <string name="app_name_long" translatable="false">Dum-Dum — a cute way of calling someone Dumb.</string>
-    <string name="app_desc" translatable="false">Simple Android client for SOCKS, HTTP &amp; HTTPS proxies, written in Kotlin.</string>
+    <string name="app_name_long">Dum-Dum — a cute way of calling someone Dumb.</string>
+    <string name="app_desc">Simple Android client for SOCKS, HTTP &amp; HTTPS proxies, written in Kotlin.</string>
     <string name="project">Project</string>
     <string name="github">Source code</string>
     <string name="telegram">Telegram update channel</string>

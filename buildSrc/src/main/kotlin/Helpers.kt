@@ -45,7 +45,7 @@ fun Project.requireFlavor(): String {
 fun Project.requireMetadata(): Properties {
     if (!::metadata.isInitialized) {
         metadata = Properties().apply {
-            load(rootProject.file("nb4a.properties").inputStream())
+            load(rootProject.file("dumdum.properties").inputStream())
         }
     }
     return metadata
@@ -214,7 +214,7 @@ fun Project.setupApp() {
         applicationVariants.all {
             outputs.all {
                 this as BaseVariantOutputImpl
-                outputFileName = outputFileName.replace(project.name, "Dum-Dum-$versionName")
+                outputFileName = outputFileName.replace(project.name, "DumDum-$versionName")
                     .replace("-release", "")
                     .replace("-oss", "")
             }
