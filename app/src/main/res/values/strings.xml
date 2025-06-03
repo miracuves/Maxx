@@ -565,5 +565,5 @@
     <string name="padding">Padding</string>
     <string name="network_change_reset_connections">Reset outbound connections when network changes</string>
     <string name="wake_reset_connections">Reset outbound connections when device wake from sleep</string>
-    <string name="add_profile_other">Other&#8230;</string>
+    <string name="add_profile_import">Import&#8230;</string>
 </resources>
