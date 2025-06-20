@@ -65,7 +65,6 @@ class AdvancedSettingsFragment : PreferenceFragmentCompat() {
             val view = EditText(context).apply {
                 inputType = EditorInfo.TYPE_CLASS_NUMBER
                 var size = DataStore.logBufSize
-                if (size == 0) size = 50
                 setText(size.toString())
             }
 
@@ -101,6 +100,14 @@ class AdvancedSettingsFragment : PreferenceFragmentCompat() {
             batteryOptimizations.isEnabled = false
         }
 
+        val showLogcat = findPreference<Preference>("showLogcat")
+        showLogcat?.setOnPreferenceClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.settings_container, LogcatFragment())
+                .addToBackStack(null)
+                .commit()
+            true
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
