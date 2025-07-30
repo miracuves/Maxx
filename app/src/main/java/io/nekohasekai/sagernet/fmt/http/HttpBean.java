@@ -14,20 +14,23 @@ public class HttpBean extends StandardV2RayBean {
 
     public String username;
     public String password;
+    public String country; // Country code for the proxy server
 
     @Override
     public void initializeDefaultValues() {
         super.initializeDefaultValues();
         if (username == null) username = "";
         if (password == null) password = "";
+        if (country == null) country = "";
     }
 
     @Override
     public void serialize(ByteBufferOutput output) {
-        output.writeInt(0);
+        output.writeInt(1); // Version 1
         super.serialize(output);
         output.writeString(username);
         output.writeString(password);
+        output.writeString(country);
     }
 
     @Override
@@ -36,6 +39,9 @@ public class HttpBean extends StandardV2RayBean {
         super.deserialize(input);
         username = input.readString();
         password = input.readString();
+        if (version >= 1) {
+            country = input.readString();
+        }
     }
 
     @NotNull

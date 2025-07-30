@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/bandwidth_limit">
+        
+        <SwitchPreference
+            app:key="enableBandwidthLimit"
+            app:title="@string/bandwidth_limit_enabled"
+            app:summary="Enable data usage limit for this profile" />
+
+        <EditTextPreference
+            app:key="bandwidthLimitValue"
+            app:title="@string/bandwidth_limit_value"
+            app:summary="Set the limit value"
+            app:useSimpleSummaryProvider="true" />
+
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:key="bandwidthLimitUnit"
+            app:title="@string/bandwidth_limit_unit"
+            app:entries="@array/bandwidth_unit_entries"
+            app:entryValues="@array/bandwidth_unit_values"
+            app:defaultValue="MB"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/bandwidth_usage">
+        
+        <Preference
+            app:key="bandwidthUsageInfo"
+            app:title="Usage Information"
+            app:summary="No usage data available" />
+
+        <Preference
+            app:key="resetBandwidthUsage"
+            app:title="@string/bandwidth_reset"
+            app:summary="Reset data usage counter for this profile" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen> 

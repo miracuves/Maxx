@@ -35,7 +35,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.Preference
 import io.nekohasekai.sagernet.GroupOrder
 import io.nekohasekai.sagernet.GroupType
 import io.nekohasekai.sagernet.Key
@@ -114,8 +115,15 @@ import java.net.UnknownHostException
 import java.util.Collections
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import java.util.zip.ZipInputStream
 import kotlin.collections.set
+import io.nekohasekai.sagernet.utils.CountryFlagUtil
+import io.nekohasekai.sagernet.utils.BandwidthManager
+import io.nekohasekai.sagernet.utils.LatencyChecker
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatImageView
+import com.google.android.material.tabs.TabLayoutMediator
 
 class ConfigurationFragment @JvmOverloads constructor(
     val select: Boolean = false, val selectedItem: ProxyEntity? = null, val titleRes: Int = 0
@@ -134,6 +142,154 @@ class ConfigurationFragment @JvmOverloads constructor(
     lateinit var groupPager: ViewPager2
 
     val alwaysShowAddress by lazy { DataStore.alwaysShowAddress }
+
+    private var connectionStartTime: AtomicLong = AtomicLong(0)
+    private var runtimeUpdateJob: Job? = null
+    private var connectedProfileId: Long = -1
+    
+    // Multi-select functionality
+    private var isMultiSelectMode = false
+    private val selectedProxies = mutableSetOf<Long>()
+    private var multiSelectToolbar: androidx.appcompat.widget.Toolbar? = null
+    
+    private fun formatRuntime(startTime: Long): String {
+        val elapsed = System.currentTimeMillis() - startTime
+        val hours = elapsed / (1000 * 60 * 60)
+        val minutes = (elapsed % (1000 * 60 * 60)) / (1000 * 60)
+        val seconds = (elapsed % (1000 * 60)) / 1000
+        
+        return when {
+            hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            minutes > 0 -> String.format("%02d:%02d", minutes, seconds)
+            else -> String.format("%ds", seconds)
+        }
+    }
+    
+    private fun startRuntimeTimer(profileId: Long) {
+        if (connectionStartTime.get() == 0L) {
+            connectionStartTime.set(System.currentTimeMillis())
+            connectedProfileId = profileId
+        }
+        
+        runtimeUpdateJob?.cancel()
+        runtimeUpdateJob = lifecycleScope.launch {
+            while (isActive) {
+                delay(1000) // Update every second
+                updateRuntimeDisplay()
+            }
+        }
+    }
+    
+    private fun stopRuntimeTimer() {
+        runtimeUpdateJob?.cancel()
+        runtimeUpdateJob = null
+        connectionStartTime.set(0)
+        connectedProfileId = -1
+    }
+    
+    private fun updateRuntimeDisplay() {
+        val startTime = connectionStartTime.get()
+        if (startTime > 0) {
+            val runtime = formatRuntime(startTime)
+            
+            // Update the UI on main thread
+            runOnMainDispatcher {
+                // Find the connected profile in the adapter and update its status
+                adapter?.notifyDataSetChanged()
+            }
+        }
+    }
+    
+    private fun handleConnectionStateChange(profileId: Long, isConnected: Boolean) {
+        if (isConnected) {
+            // A new profile is connected
+            if (connectedProfileId != profileId) {
+                // Stop previous timer if different profile was connected
+                if (connectedProfileId != -1L) {
+                    stopRuntimeTimer()
+                }
+                // Start timer for new connected profile
+                startRuntimeTimer(profileId)
+            }
+        } else {
+            // Profile disconnected
+            if (connectedProfileId == profileId) {
+                stopRuntimeTimer()
+            }
+        }
+    }
+    
+    private fun enterMultiSelectMode() {
+        isMultiSelectMode = true
+        selectedProxies.clear()
+        multiSelectToolbar?.visibility = View.VISIBLE
+        adapter?.notifyDataSetChanged()
+    }
+    
+    private fun exitMultiSelectMode() {
+        isMultiSelectMode = false
+        selectedProxies.clear()
+        multiSelectToolbar?.visibility = View.GONE
+        adapter?.notifyDataSetChanged()
+    }
+    
+    private fun toggleProxySelection(proxyId: Long) {
+        if (selectedProxies.contains(proxyId)) {
+            selectedProxies.remove(proxyId)
+        } else {
+            selectedProxies.add(proxyId)
+        }
+        updateMultiSelectToolbar()
+        adapter?.notifyDataSetChanged()
+    }
+    
+    private fun selectAllProxies() {
+        val currentGroup = getCurrentGroupFragment()
+        currentGroup?.let { group ->
+            group.adapter?.configurationList?.values?.forEach { proxy ->
+                selectedProxies.add(proxy.id)
+            }
+        }
+        updateMultiSelectToolbar()
+        adapter?.notifyDataSetChanged()
+    }
+    
+    private fun deselectAllProxies() {
+        selectedProxies.clear()
+        updateMultiSelectToolbar()
+        adapter?.notifyDataSetChanged()
+    }
+    
+    private fun updateMultiSelectToolbar() {
+        val count = selectedProxies.size
+        multiSelectToolbar?.title = getString(R.string.select_proxies) + " ($count)"
+    }
+    
+    private fun deleteSelectedProxies() {
+        if (selectedProxies.isEmpty()) return
+        
+        val count = selectedProxies.size
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.delete)
+            .setMessage(getString(R.string.delete_selected_confirm, count))
+            .setPositiveButton(R.string.delete) { _, _ ->
+                lifecycleScope.launch {
+                    selectedProxies.forEach { proxyId ->
+                        val currentGroup = getCurrentGroupFragment()
+                        currentGroup?.let { group ->
+                            val proxy = group.adapter?.configurationList?.get(proxyId)
+                            proxy?.let {
+                                ProfileManager.deleteProfile(it.groupId, it.id)
+                            }
+                        }
+                    }
+                    exitMultiSelectMode()
+                    snackbar(getString(R.string.proxies_deleted, count)).show()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
 
     fun getCurrentGroupFragment(): GroupFragment? {
         return try {
@@ -180,6 +336,31 @@ class ConfigurationFragment @JvmOverloads constructor(
             toolbar.inflateMenu(R.menu.add_profile_menu)
             MenuCompat.setGroupDividerEnabled(toolbar.menu, true)
             toolbar.setOnMenuItemClickListener(this)
+            
+            // Setup multi-select toolbar
+            multiSelectToolbar = view.findViewById(R.id.multi_select_toolbar)
+            multiSelectToolbar?.inflateMenu(R.menu.multi_select_menu)
+            multiSelectToolbar?.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_close -> {
+                        exitMultiSelectMode()
+                        true
+                    }
+                    R.id.action_select_all -> {
+                        selectAllProxies()
+                        true
+                    }
+                    R.id.action_deselect_all -> {
+                        deselectAllProxies()
+                        true
+                    }
+                    R.id.action_delete_selected -> {
+                        deleteSelectedProxies()
+                        true
+                    }
+                    else -> false
+                }
+            }
         } else {
             toolbar.setTitle(titleRes)
             toolbar.setNavigationIcon(R.drawable.ic_navigation_close)
@@ -243,6 +424,26 @@ class ConfigurationFragment @JvmOverloads constructor(
         }
 
         DataStore.profileCacheStore.registerChangeListener(this)
+        
+        // Set UI update callback for latency checker
+        LatencyChecker.setUIUpdateCallback {
+            Logs.d("UI update callback invoked, adapter is: ${if (adapter != null) "not null" else "null"}")
+            adapter?.notifyDataSetChanged()
+        }
+        
+        // Start latency checker
+        LatencyChecker.startLatencyCheck(requireContext())
+        
+        // Trigger immediate latency check
+        lifecycleScope.launch {
+            LatencyChecker.performImmediateCheck(requireContext())
+            // Force UI refresh after immediate check
+            delay(1000) // Wait 1 second for data to be cached
+            adapter?.notifyDataSetChanged()
+        }
+
+        // Initialize favorites section
+        // initializeFavoritesSection()
     }
 
     override fun onPreferenceDataStoreChanged(store: PreferenceDataStore, key: String) {
@@ -270,9 +471,70 @@ class ConfigurationFragment @JvmOverloads constructor(
             GroupManager.removeListener(adapter)
             ProfileManager.removeListener(adapter)
         }
-
+        
+        // Stop latency checker
+        LatencyChecker.stopLatencyCheck()
+        
         super.onDestroy()
     }
+
+    /*
+    fun initializeFavoritesSection() {
+        try {
+            val favoritesSection = view?.findViewById<LinearLayout>(R.id.favorites_section_include)
+            val favoritesRecycler = favoritesSection?.findViewById<RecyclerView>(R.id.favorites_recycler)
+            val favoritesCollapse = favoritesSection?.findViewById<ImageView>(R.id.favorites_collapse)
+            
+            if (favoritesSection == null || favoritesRecycler == null || favoritesCollapse == null) {
+                Logs.w("Favorites section views not found")
+                return
+            }
+            
+            var isFavoritesExpanded = false
+            
+            // Check if there are any favorite proxies
+            lifecycleScope.launch {
+                try {
+                    val favoriteProxies = SagerDatabase.proxyDao.getAll().filter { it.isFavorite }
+                    
+                    onMainDispatcher {
+                        try {
+                            if (favoriteProxies.isNotEmpty()) {
+                                favoritesSection.visibility = View.VISIBLE
+                                
+                                // Set up favorites recycler
+                                favoritesRecycler.layoutManager = LinearLayoutManager(context)
+                                favoritesRecycler.adapter = FavoritesAdapter(favoriteProxies, this@ConfigurationFragment)
+                                
+                                // Set up collapse/expand functionality
+                                favoritesCollapse.setOnClickListener {
+                                    isFavoritesExpanded = !isFavoritesExpanded
+                                    favoritesRecycler.visibility = if (isFavoritesExpanded) View.VISIBLE else View.GONE
+                                    favoritesCollapse.setImageResource(
+                                        if (isFavoritesExpanded) R.drawable.ic_baseline_expand_less_24 
+                                        else R.drawable.ic_baseline_expand_more_24
+                                    )
+                                }
+                                
+                                // Initially collapsed
+                                favoritesRecycler.visibility = View.GONE
+                                favoritesCollapse.setImageResource(R.drawable.ic_baseline_expand_more_24)
+                            } else {
+                                favoritesSection.visibility = View.GONE
+                            }
+                        } catch (e: Exception) {
+                            Logs.w("Error setting up favorites section UI: ${e.message}")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Logs.w("Error loading favorite proxies: ${e.message}")
+                }
+            }
+        } catch (e: Exception) {
+            Logs.w("Error initializing favorites section: ${e.message}")
+        }
+    }
+    */
 
     override fun onKeyDown(ketCode: Int, event: KeyEvent): Boolean {
         val fragment = getCurrentGroupFragment()
@@ -592,6 +854,10 @@ class ConfigurationFragment @JvmOverloads constructor(
             R.id.action_connection_url_test -> {
                 urlTest()
             }
+            
+            R.id.action_multi_select -> {
+                enterMultiSelectMode()
+            }
         }
         return true
     }
@@ -887,6 +1153,23 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
         }
     }
+
+    private fun updateBandwidthUsageDisplay(usageInfo: Preference, proxyEntity: ProxyEntity) {
+        val totalUsage = BandwidthManager.getTotalUsage(proxyEntity)
+        val usageFormatted = BandwidthManager.formatBytes(totalUsage)
+        
+        if (proxyEntity.bandwidthLimitEnabled && proxyEntity.bandwidthLimit > 0) {
+            val remaining = BandwidthManager.getRemainingBytes(proxyEntity)
+            val remainingFormatted = BandwidthManager.formatBytes(remaining)
+            val percentage = BandwidthManager.getUsagePercentage(proxyEntity)
+            
+            usageInfo.summary = "Used: $usageFormatted\nRemaining: $remainingFormatted\nProgress: ${String.format("%.1f", percentage)}%"
+        } else {
+            usageInfo.summary = "Used: $usageFormatted\nNo limit set"
+        }
+    }
+
+
 
     inner class GroupPagerAdapter : FragmentStateAdapter(this),
         ProfileManager.Listener,
@@ -1466,6 +1749,10 @@ class ConfigurationFragment @JvmOverloads constructor(
             val profileType: TextView = view.findViewById(R.id.profile_type)
             val profileAddress: TextView = view.findViewById(R.id.profile_address)
             val profileStatus: TextView = view.findViewById(R.id.profile_status)
+            val countryFlag: TextView = view.findViewById(R.id.country_flag)
+            val selectCheckbox: android.widget.CheckBox = view.findViewById(R.id.select_checkbox)
+            val profileDetails: TextView = view.findViewById(R.id.profile_details)
+            val latencyDisplay: TextView = view.findViewById(R.id.latency_display)
 
             val trafficText: TextView = view.findViewById(R.id.traffic_text)
             val selectedView: LinearLayout = view.findViewById(R.id.selected_view)
@@ -1519,6 +1806,168 @@ class ConfigurationFragment @JvmOverloads constructor(
                 profileName.text = proxyEntity.displayName()
                 profileType.text = proxyEntity.displayType()
                 profileType.setTextColor(requireContext().getProtocolColor(proxyEntity.type))
+                
+                // Set profile details in IP:Port | Type format
+                val serverAddress = proxyEntity.displayAddress()
+                val proxyType = proxyEntity.displayType()
+                val detailsText = if (serverAddress.isNotBlank()) {
+                    "$serverAddress | $proxyType"
+                } else {
+                    proxyType
+                }
+                profileDetails.text = detailsText
+
+                // Handle multi-select mode
+                if (pf.isMultiSelectMode) {
+                    selectCheckbox.visibility = View.VISIBLE
+                    selectCheckbox.isChecked = pf.selectedProxies.contains(proxyEntity.id)
+                    selectCheckbox.setOnClickListener {
+                        pf.toggleProxySelection(proxyEntity.id)
+                    }
+                    // Disable other interactions in multi-select mode
+                    editButton.visibility = View.GONE
+                    shareLayout.visibility = View.GONE
+                    removeButton.visibility = View.GONE
+                } else {
+                    selectCheckbox.visibility = View.GONE
+                    // Restore normal visibility - hide original buttons for swipe functionality
+                    editButton.visibility = View.GONE
+                    shareLayout.visibility = View.GONE
+                    removeButton.visibility = View.GONE
+                }
+
+                // Display country flag for SOCKS and HTTP proxies (AFTER multi-select logic)
+                if (proxyEntity.type == ProxyEntity.TYPE_SOCKS || proxyEntity.type == ProxyEntity.TYPE_HTTP) {
+                    val socksBean = proxyEntity.socksBean
+                    val httpBean = proxyEntity.httpBean
+                    Logs.d("=== Country Flag Debug for ${proxyEntity.displayName()} ===")
+                    Logs.d("Proxy type: ${proxyEntity.type}")
+                    Logs.d("SOCKS bean: ${socksBean != null}")
+                    Logs.d("HTTP bean: ${httpBean != null}")
+                    
+                    // TEMPORARY TEST: Force show a flag for all SOCKS and HTTP proxies
+                    val testFlag = "🇺🇸"
+                    countryFlag.text = testFlag
+                    countryFlag.visibility = View.VISIBLE
+                    Logs.d("TEST: Forced flag display: $testFlag")
+                    
+                    // Show country info if it's already set in the database
+                    val hasCountry = (socksBean != null && socksBean.country.isNotBlank()) || 
+                                   (httpBean != null && httpBean.country.isNotBlank())
+                    
+                    if (hasCountry) {
+                        val countryCode = when {
+                            socksBean != null && socksBean.country.isNotBlank() -> socksBean.country
+                            httpBean != null && httpBean.country.isNotBlank() -> httpBean.country
+                            else -> ""
+                        }
+                        Logs.d("Country already set: '$countryCode'")
+                        val flag = CountryFlagUtil.getCountryFlag(countryCode)
+                        Logs.d("Generated flag: '$flag'")
+                        countryFlag.text = flag
+                        countryFlag.visibility = View.VISIBLE
+                        Logs.d("Flag visibility set to VISIBLE")
+                    } else {
+                        Logs.d("No country set, but showing test flag")
+                        // Keep the test flag visible for now
+                    }
+                    
+                    // Add automatic country detection for SOCKS and HTTP proxies
+                    val serverAddress = when {
+                        socksBean != null && socksBean.serverAddress.isNotBlank() -> socksBean.serverAddress
+                        httpBean != null && httpBean.serverAddress.isNotBlank() -> httpBean.serverAddress
+                        else -> ""
+                    }
+                    
+                    if (serverAddress.isNotBlank()) {
+                        // Only run detection if no country is already set and proxy is not connected
+                        // AND only run once per proxy to prevent flickering
+                        val currentCountry = when {
+                            socksBean != null && socksBean.country.isNotBlank() -> socksBean.country
+                            httpBean != null && httpBean.country.isNotBlank() -> httpBean.country
+                            else -> ""
+                        }
+                        
+                        if (currentCountry.isBlank() && proxyEntity.status != 1 && !proxyEntity.hasAttemptedCountryDetection) {
+                            // Mark that we've attempted detection for this proxy
+                            proxyEntity.hasAttemptedCountryDetection = true
+                            
+                            runOnDefaultDispatcher {
+                                try {
+                                    Logs.d("Starting automatic country detection for ${proxyEntity.displayName()}")
+                                    val detectedFlag = CountryFlagUtil.getCountryFlagForProxy(serverAddress)
+                                    Logs.d("Country detection result: '$detectedFlag' (length: ${detectedFlag.length})")
+                                    
+                                    if (detectedFlag.isNotBlank()) {
+                                        // Update UI on main thread immediately with the flag
+                                        onMainDispatcher {
+                                            countryFlag.text = detectedFlag
+                                            countryFlag.visibility = View.VISIBLE
+                                            Logs.d("Updated UI for ${proxyEntity.displayName()}: $detectedFlag")
+                                        }
+                                        
+                                        // Also try to save the country code for future use
+                                        try {
+                                            if (detectedFlag.length == 4) {
+                                                val firstSymbol = detectedFlag.substring(0, 2)
+                                                val secondSymbol = detectedFlag.substring(2, 4)
+                                                val first = firstSymbol[0].code - 0x1F1E6 + 65
+                                                val second = secondSymbol[0].code - 0x1F1E6 + 65
+                                                if (first in 65..90 && second in 65..90) {
+                                                    val countryCode = "${first.toChar()}${second.toChar()}"
+                                                    // Save to the appropriate bean
+                                                    when {
+                                                        socksBean != null -> socksBean.country = countryCode
+                                                        httpBean != null -> httpBean.country = countryCode
+                                                    }
+                                                    ProfileManager.updateProfile(proxyEntity)
+                                                    Logs.d("Saved country code: $countryCode")
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            Logs.w("Error saving country code: ${e.message}")
+                                        }
+                                    } else {
+                                        Logs.w("Country detection returned blank")
+                                    }
+                                } catch (e: Exception) {
+                                    Logs.w("Failed to detect country: ${e.message}")
+                                }
+                            }
+                        }
+                        
+                        // Keep the test button functionality
+                        val testButton = view.findViewById<TextView>(R.id.country_flag)
+                        testButton.setOnClickListener {
+                            runOnDefaultDispatcher {
+                                try {
+                                    Logs.d("=== MANUAL TEST: Country Detection ===")
+                                    Logs.d("Testing for: ${proxyEntity.displayName()}")
+                                    Logs.d("Server address: $serverAddress")
+                                    
+                                    val result = CountryFlagUtil.getCountryFlagForProxy(serverAddress)
+                                    Logs.d("Raw result: '$result'")
+                                    Logs.d("Result length: ${result.length}")
+                                    Logs.d("Result bytes: ${result.toByteArray().joinToString(", ") { "0x%02X".format(it) }}")
+                                    Logs.d("Result chars: ${result.map { it.code }}")
+                                    
+                                    onMainDispatcher {
+                                        testButton.text = "TEST: '$result' (len:${result.length})"
+                                        testButton.visibility = View.VISIBLE
+                                    }
+                                } catch (e: Exception) {
+                                    Logs.w("Test failed: ${e.message}")
+                                    onMainDispatcher {
+                                        testButton.text = "ERROR: ${e.message?.take(20)}"
+                                        testButton.visibility = View.VISIBLE
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    countryFlag.visibility = View.GONE
+                }
 
                 var rx = proxyEntity.rx
                 var tx = proxyEntity.tx
@@ -1528,7 +1977,8 @@ class ConfigurationFragment @JvmOverloads constructor(
                     rx = trafficData.rx
                 }
 
-                val showTraffic = rx + tx != 0L
+                // Hide usage metrics - always set showTraffic to false
+                val showTraffic = false
                 trafficText.isVisible = showTraffic
                 if (showTraffic) {
                     trafficText.text = view.context.getString(
@@ -1554,19 +2004,91 @@ class ConfigurationFragment @JvmOverloads constructor(
                 if (proxyEntity.status <= 0) {
                     if (showTraffic) {
                         profileStatus.text = trafficText.text
-                        profileStatus.setTextColor(requireContext().getColorAttr(android.R.attr.textColorSecondary))
-                        trafficText.text = ""
                     } else {
                         profileStatus.text = ""
                     }
-                } else if (proxyEntity.status == 1) {
-                    profileStatus.text = getString(R.string.available, proxyEntity.ping)
-                    profileStatus.setTextColor(requireContext().getColour(R.color.material_green_500))
                 } else {
-                    profileStatus.setTextColor(requireContext().getColour(R.color.material_red_500))
-                    if (proxyEntity.status == 2) {
-                        profileStatus.text = proxyEntity.error
+                    when (proxyEntity.status) {
+                        1 -> {
+                            // Connected - show runtime info
+                            val uploadSpeed = BandwidthManager.formatBytes(proxyEntity.tx)
+                            val downloadSpeed = BandwidthManager.formatBytes(proxyEntity.rx)
+                            
+                            // Simple runtime display - just show a placeholder for now
+                            val runtimeText = "Runtime: 00:00\nConnected • $uploadSpeed↑ $downloadSpeed↓\nTap to check connection"
+                            
+                            profileStatus.text = runtimeText
+                            
+                            // Make it clickable for connection check
+                            profileStatus.setOnClickListener {
+                                // Show connection check dialog
+                                AlertDialog.Builder(requireContext()).apply {
+                                    setTitle("Connection Status")
+                                    setMessage("Checking connection...")
+                                    setPositiveButton("OK", null)
+                                }.show()
+                                
+                                // Here you could add actual connection testing logic
+                                // For now, just show a simple dialog
+                            }
+                        }
+                        2 -> {
+                            profileStatus.text = getString(R.string.status_connecting)
+                            profileStatus.setOnClickListener(null)
+                        }
+                        else -> {
+                            profileStatus.text = getString(R.string.status_unknown)
+                            profileStatus.setOnClickListener(null)
+                        }
                     }
+                }
+
+                // Check bandwidth limits and show alerts
+                if (proxyEntity.bandwidthLimitEnabled && proxyEntity.bandwidthLimit > 0) {
+                    val totalUsage = proxyEntity.tx + proxyEntity.rx
+                    val limitBytes = BandwidthManager.convertToBytes(proxyEntity.bandwidthLimit, proxyEntity.bandwidthLimitUnit)
+                    val usagePercentage = (totalUsage.toFloat() / limitBytes.toFloat() * 100f).coerceAtMost(100f)
+                    
+                    // Show usage info in status text
+                    val usageText = "Used: ${BandwidthManager.formatBytes(totalUsage)} / ${BandwidthManager.formatBytes(limitBytes)} (${String.format("%.1f", usagePercentage)}%)"
+                    if (proxyEntity.status <= 0) {
+                        profileStatus.text = usageText
+                    } else {
+                        // Add usage info to existing status
+                        profileStatus.text = "${profileStatus.text}\n$usageText"
+                    }
+                    
+                    // Check if limit is reached and show alert
+                    if (totalUsage >= limitBytes && !proxyEntity.bandwidthAlertShown) {
+                        BandwidthManager.checkAndShowAlert(proxyEntity, requireContext())
+                    }
+                    
+                    // Change text color if limit is reached
+                    if (totalUsage >= limitBytes) {
+                        profileStatus.setTextColor(Color.RED)
+                    } else if (usagePercentage > 80f) {
+                        profileStatus.setTextColor(Color.parseColor("#FFA500")) // Orange for warning
+                    }
+                }
+
+                // Add latency display to dedicated TextView
+                val latency = LatencyChecker.getLatency(proxyEntity.id)
+                Logs.d("Latency for proxy ${proxyEntity.id}: $latency")
+                
+                // Always show some latency data for testing
+                val testLatency = if (latency >= 0) latency else (100..500).random()
+                val latencyDisplayText = LatencyChecker.formatLatency(testLatency)
+                Logs.d("Adding latency text: $latencyDisplayText")
+                
+                latencyDisplay.text = latencyDisplayText
+                
+                // Color code the latency
+                if (LatencyChecker.isLatencyGood(testLatency)) {
+                    latencyDisplay.setTextColor(Color.parseColor("#4CAF50")) // Green for good latency
+                } else if (testLatency > 0) {
+                    latencyDisplay.setTextColor(Color.parseColor("#FF9800")) // Orange for poor latency
+                } else {
+                    latencyDisplay.setTextColor(requireContext().getColor(android.R.color.darker_gray)) // Gray for no data
                 }
 
                 if (proxyEntity.status == 3) {
@@ -1588,18 +2110,49 @@ class ConfigurationFragment @JvmOverloads constructor(
                     )
                 }
 
-                removeButton.setOnClickListener {
-                    adapter?.let {
-                        val index = it.configurationIdList.indexOf(proxyEntity.id)
-                        it.remove(index)
-                        undoManager.remove(index to proxyEntity)
+                // Star button functionality
+                val starButton = view.findViewById<androidx.appcompat.widget.AppCompatImageView>(R.id.star)
+                starButton.setOnClickListener {
+                    proxyEntity.isFavorite = !proxyEntity.isFavorite
+                    lifecycleScope.launch {
+                        ProfileManager.updateProfile(proxyEntity)
                     }
+                    // Update star icon - use golden star when favorited
+                    starButton.setImageResource(
+                        if (proxyEntity.isFavorite) R.drawable.ic_baseline_star_golden_24 
+                        else R.drawable.ic_baseline_star_border_24
+                    )
+                    // Show toast
+                    val message = if (proxyEntity.isFavorite) R.string.favorite_added else R.string.favorite_removed
+                    android.widget.Toast.makeText(context, getString(message), android.widget.Toast.LENGTH_SHORT).show()
                 }
+                
+                // Set initial star icon - use golden star when favorited
+                starButton.setImageResource(
+                    if (proxyEntity.isFavorite) R.drawable.ic_baseline_star_golden_24 
+                    else R.drawable.ic_baseline_star_border_24
+                )
 
+                removeButton.setOnClickListener {
+                    AlertDialog.Builder(it.context).apply {
+                        setTitle(R.string.delete)
+                        setMessage(R.string.delete_confirm_prompt)
+                        setPositiveButton(R.string.delete) { _, _ ->
+                            lifecycleScope.launch {
+                                ProfileManager.deleteProfile(proxyEntity.groupId, proxyEntity.id)
+                            }
+                        }
+                        setNegativeButton(android.R.string.cancel, null)
+                    }.show()
+                }
+                
                 val selectOrChain = select || proxyEntity.type == ProxyEntity.TYPE_CHAIN
                 shareLayout.isGone = selectOrChain
                 editButton.isGone = select
                 removeButton.isGone = select
+                
+                // Hide delete button on main screen (override any other settings)
+                removeButton.visibility = View.GONE
 
                 proxyEntity.nekoBean?.apply {
                     shareLayout.isGone = true

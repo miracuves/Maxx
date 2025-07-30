@@ -489,4 +489,38 @@
         <item>@string/sniff_routing</item>
     </string-array>
 
+    <string-array name="language_entries">
+        <item>English</item>
+        <item>Русский</item>
+        <item>Español</item>
+        <item>中文</item>
+        <item>Tiếng Việt</item>
+        <item>Français</item>
+        <item>Deutsch</item>
+    </string-array>
+
+    <string-array name="language_values">
+        <item>en</item>
+        <item>ru</item>
+        <item>es</item>
+        <item>zh</item>
+        <item>vi</item>
+        <item>fr</item>
+        <item>de</item>
+    </string-array>
+
+    <string-array name="bandwidth_unit_entries">
+        <item>KB</item>
+        <item>MB</item>
+        <item>GB</item>
+        <item>TB</item>
+    </string-array>
+
+    <string-array name="bandwidth_unit_values">
+        <item>KB</item>
+        <item>MB</item>
+        <item>GB</item>
+        <item>TB</item>
+    </string-array>
+
 </resources>

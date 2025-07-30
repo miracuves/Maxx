@@ -54,6 +54,12 @@ data class ProxyEntity(
     var ping: Int = 0,
     var uuid: String = "",
     var error: String? = null,
+    @ColumnInfo(defaultValue = "0") var bandwidthLimit: Long = 0L, // Bandwidth limit in bytes
+    @ColumnInfo(defaultValue = "MB") var bandwidthLimitUnit: String = "MB", // Unit: KB, MB, GB
+    @ColumnInfo(defaultValue = "0") var bandwidthLimitEnabled: Boolean = false, // Whether bandwidth limit is enabled
+    @ColumnInfo(defaultValue = "0") var bandwidthAlertShown: Boolean = false, // Whether alert has been shown for this profile
+    @ColumnInfo(defaultValue = "0") var isFavorite: Boolean = false, // Whether this proxy is starred/favorited
+    @ColumnInfo(defaultValue = "0") var hasAttemptedCountryDetection: Boolean = false, // Whether country detection has been attempted
     var socksBean: SOCKSBean? = null,
     var httpBean: HttpBean? = null,
     var ssBean: ShadowsocksBean? = null,
@@ -131,6 +137,12 @@ data class ProxyEntity(
         output.writeInt(ping)
         output.writeString(uuid)
         output.writeString(error)
+        output.writeLong(bandwidthLimit)
+        output.writeString(bandwidthLimitUnit)
+        output.writeBoolean(bandwidthLimitEnabled)
+        output.writeBoolean(bandwidthAlertShown)
+        output.writeBoolean(isFavorite)
+        output.writeBoolean(hasAttemptedCountryDetection)
 
         val data = KryoConverters.serialize(requireBean())
         output.writeVarInt(data.size, true)
@@ -152,6 +164,12 @@ data class ProxyEntity(
         ping = input.readInt()
         uuid = input.readString()
         error = input.readString()
+        bandwidthLimit = input.readLong()
+        bandwidthLimitUnit = input.readString()
+        bandwidthLimitEnabled = input.readBoolean()
+        bandwidthAlertShown = input.readBoolean()
+        isFavorite = input.readBoolean()
+        hasAttemptedCountryDetection = input.readBoolean()
         putByteArray(input.readBytes(input.readVarInt(true)))
 
         dirty = input.readBoolean()
@@ -502,6 +520,9 @@ data class ProxyEntity(
 
         @Query("SELECT * FROM proxy_entities WHERE id = :proxyId")
         fun getById(proxyId: Long): ProxyEntity?
+
+        @Query("SELECT * FROM proxy_entities WHERE isFavorite = 1 ORDER BY userOrder")
+        fun getFavorites(): List<ProxyEntity>
 
         @Query("DELETE FROM proxy_entities WHERE id IN (:proxyId)")
         fun deleteById(proxyId: Long): Int

@@ -249,6 +249,12 @@
             android:parentActivityName="io.nekohasekai.sagernet.ui.MainActivity" />
 
         <activity
+            android:name="io.nekohasekai.sagernet.ui.profile.BandwidthSettingsActivity"
+            android:configChanges="uiMode"
+            android:label="@string/bandwidth_limit"
+            android:parentActivityName="io.nekohasekai.sagernet.ui.MainActivity" />
+
+        <activity
             android:name="io.nekohasekai.sagernet.ui.SwitchActivity"
             android:configChanges="uiMode"
             android:excludeFromRecents="true"

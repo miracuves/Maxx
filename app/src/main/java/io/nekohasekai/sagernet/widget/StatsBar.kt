@@ -28,8 +28,45 @@ class StatsBar @JvmOverloads constructor(
     private lateinit var txText: TextView
     private lateinit var rxText: TextView
     private lateinit var behavior: YourBehavior
+    
+    private var connectionStartTime: Long = 0
+    private var runtimeUpdateJob: kotlinx.coroutines.Job? = null
 
     var allowShow = true
+    
+    private fun formatRuntime(startTime: Long): String {
+        val elapsed = System.currentTimeMillis() - startTime
+        val hours = elapsed / (1000 * 60 * 60)
+        val minutes = (elapsed % (1000 * 60 * 60)) / (1000 * 60)
+        val seconds = (elapsed % (1000 * 60)) / 1000
+        
+        return when {
+            hours > 0 -> String.format("%02d:%02d:%02d", hours, minutes, seconds)
+            minutes > 0 -> String.format("%02d:%02d", minutes, seconds)
+            else -> String.format("%ds", seconds)
+        }
+    }
+    
+    private fun startRuntimeTimer() {
+        connectionStartTime = System.currentTimeMillis()
+        runtimeUpdateJob?.cancel()
+        runtimeUpdateJob = (context as MainActivity).lifecycleScope.launch {
+            while (true) {
+                delay(1000) // Update every second
+                if (connectionStartTime > 0) {
+                    val runtime = formatRuntime(connectionStartTime)
+                    val statusWithRuntime = "Runtime: $runtime\nConnected, tap to check connection"
+                    setStatus(statusWithRuntime)
+                }
+            }
+        }
+    }
+    
+    private fun stopRuntimeTimer() {
+        runtimeUpdateJob?.cancel()
+        runtimeUpdateJob = null
+        connectionStartTime = 0
+    }
 
     override fun getBehavior(): YourBehavior {
         if (!this::behavior.isInitialized) behavior = YourBehavior { allowShow }
@@ -89,11 +126,12 @@ class StatsBar @JvmOverloads constructor(
         if (state == BaseService.State.Connected) {
             postWhenStarted {
                 if (allowShow) performShow()
-                setStatus(app.getText(R.string.vpn_connected))
+                startRuntimeTimer()
             }
         } else {
             postWhenStarted {
                 performHide()
+                stopRuntimeTimer()
             }
             updateSpeed(0, 0)
             setStatus(

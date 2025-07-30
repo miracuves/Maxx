@@ -4,6 +4,8 @@ import io.nekohasekai.sagernet.ktx.decodeBase64UrlSafe
 import io.nekohasekai.sagernet.ktx.toLink
 import io.nekohasekai.sagernet.ktx.unUrlSafe
 import io.nekohasekai.sagernet.ktx.urlSafe
+import io.nekohasekai.sagernet.utils.CountryFlagUtil
+import kotlinx.coroutines.runBlocking
 import moe.matsuri.nb4a.SingBoxOptions
 import moe.matsuri.nb4a.utils.NGUtil
 import moe.matsuri.nb4a.utils.Util
@@ -14,7 +16,7 @@ fun parseSOCKS(link: String): SOCKSBean {
     val url = ("http://" + link.substringAfter("://")).toHttpUrlOrNull()
         ?: error("Not supported: $link")
 
-    return SOCKSBean().apply {
+    val bean = SOCKSBean().apply {
         protocol = when {
             link.startsWith("socks4://") -> SOCKSBean.PROTOCOL_SOCKS4
             link.startsWith("socks4a://") -> SOCKSBean.PROTOCOL_SOCKS4A
@@ -35,6 +37,26 @@ fun parseSOCKS(link: String): SOCKSBean {
             }
         }
     }
+
+    // Fetch country information for the proxy
+    try {
+        val countryFlag = runBlocking {
+            CountryFlagUtil.getCountryFlagForProxy(bean.serverAddress)
+        }
+        if (countryFlag.isNotBlank()) {
+            // Extract country code from flag emoji (reverse of getCountryFlag)
+            val flag = countryFlag
+            if (flag.length == 2) {
+                val first = flag[0].code - 0x1F1E6 + 65
+                val second = flag[1].code - 0x1F1E6 + 65
+                bean.country = "${first.toChar()}${second.toChar()}"
+            }
+        }
+    } catch (e: Exception) {
+        // Ignore errors in country detection
+    }
+
+    return bean
 }
 
 fun SOCKSBean.toUri(): String {

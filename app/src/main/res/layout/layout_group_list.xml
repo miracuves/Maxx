@@ -12,6 +12,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <!-- Multi-select toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/multi_select_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?colorPrimary"
+        android:visibility="gone"
+        app:title="@string/select_proxies"
+        app:titleTextColor="?colorOnPrimary" />
+
+    <!-- <include
+        android:id="@+id/favorites_section_include"
+        layout="@layout/layout_favorites_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" /> -->
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/group_tab"
         android:layout_width="match_parent"

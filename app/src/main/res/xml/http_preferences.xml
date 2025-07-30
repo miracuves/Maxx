@@ -7,15 +7,6 @@
         app:useSimpleSummaryProvider="true" />
 
     <PreferenceCategory app:title="@string/proxy_cat">
-        <moe.matsuri.nb4a.ui.SimpleMenuPreference
-            app:defaultValue="2"
-            app:entries="@array/socks_versions"
-            app:entryValues="@array/int_array_3"
-            app:icon="@drawable/ic_baseline_nfc_24"
-            app:key="serverProtocol"
-            app:title="@string/app_version"
-            app:useSimpleSummaryProvider="true" />
-
         <EditTextPreference
             app:icon="@drawable/ic_hardware_router"
             app:key="serverAddress"
@@ -36,12 +27,6 @@
             app:icon="@drawable/ic_settings_password"
             app:key="serverPassword"
             app:title="@string/password_opt" />
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="sing-box server">
-        <SwitchPreference
-            app:key="sUoT"
-            app:title="UDP over TCP" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/bandwidth_limit">
@@ -74,4 +59,4 @@
             app:title="@string/bandwidth_reset"
             app:summary="Reset data usage counter for this profile" />
     </PreferenceCategory>
-</PreferenceScreen>
+</PreferenceScreen> 

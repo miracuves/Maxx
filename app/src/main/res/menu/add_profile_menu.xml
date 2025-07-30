@@ -90,7 +90,7 @@
         android:icon="@drawable/ic_baseline_more_vert_24"
         android:title=""
         app:showAsAction="always"
-        android:visible="false">
+        android:visible="true">
         <menu>
             <item
                 android:id="@+id/action_update_subscription"
@@ -113,6 +113,9 @@
             <item
                 android:id="@+id/action_connection_test_delete_unavailable"
                 android:title="@string/connection_test_delete_unavailable" />
+            <item
+                android:id="@+id/action_multi_select"
+                android:title="@string/select_proxies" />
             <item
                 android:id="@+id/action_order"
                 android:title="@string/group_order">

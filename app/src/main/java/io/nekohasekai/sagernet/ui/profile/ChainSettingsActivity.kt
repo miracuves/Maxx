@@ -28,6 +28,7 @@ import io.nekohasekai.sagernet.fmt.internal.ChainBean
 import io.nekohasekai.sagernet.ktx.*
 import io.nekohasekai.sagernet.ui.ProfileSelectActivity
 import moe.matsuri.nb4a.Protocols.getProtocolColor
+import io.nekohasekai.sagernet.utils.CountryFlagUtil
 
 class ChainSettingsActivity : ProfileSettingsActivity<ChainBean>(R.layout.layout_chain_settings) {
 
@@ -258,12 +259,27 @@ class ChainSettingsActivity : ProfileSettingsActivity<ChainBean>(R.layout.layout
         val trafficText: TextView = binding.trafficText
         val editButton = binding.edit
         val shareLayout = binding.share
+        val countryFlag = binding.countryFlag
 
         fun bind(proxyEntity: ProxyEntity) {
 
             profileName.text = proxyEntity.displayName()
             profileType.text = proxyEntity.displayType()
             profileType.setTextColor(getProtocolColor(proxyEntity.type))
+
+            // Display country flag for SOCKS proxies
+            if (proxyEntity.type == ProxyEntity.TYPE_SOCKS) {
+                val socksBean = proxyEntity.socksBean
+                if (socksBean != null && socksBean.country.isNotBlank()) {
+                    val flag = CountryFlagUtil.getCountryFlag(socksBean.country)
+                    countryFlag.text = flag
+                    countryFlag.visibility = View.VISIBLE
+                } else {
+                    countryFlag.visibility = View.GONE
+                }
+            } else {
+                countryFlag.visibility = View.GONE
+            }
 
             val rx = proxyEntity.rx
             val tx = proxyEntity.tx

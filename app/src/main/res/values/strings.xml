@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">DumDum</string>
+    <string name="app_name" translatable="false">Maxx</string>
     <string name="app_name_long">Dum-Dum — a cute way of calling someone Dumb.</string>
     <string name="app_desc">Simple Android client for SOCKS, HTTP &amp; HTTPS proxies, written in Kotlin.</string>
     <string name="project">Project</string>
@@ -10,7 +10,7 @@
     <string name="app_version">Version</string>
     <string name="version_x">Version (%s)</string>
     <string name="logcat">Export debug information</string>
-    <string name="menu_configuration">Connections</string>
+    <string name="menu_configuration">Home</string>
     <string name="menu_group">Group</string>
     <string name="menu_about">About</string>
     <string name="theme">Theme</string>
@@ -36,9 +36,9 @@
     <string name="group_status_empty">Empty group</string>
     <string name="group_status_empty_subscription">Not updated yet</string>
     <string name="group_status_proxies">%d Proxies</string>
-    <string name="group_status_proxies_subscription">%d Proxies | Updated on %s</string>
+    <string name="group_status_proxies_subscription" formatted="false">%1$d/%2$d proxies, %3$s</string>
     <string name="group_no_difference">%s: No difference</string>
-    <string name="group_updated">%s: Updated %d proxies</string>
+    <string name="group_updated" formatted="false">Updated: %1$s</string>
     <string name="group_show_diff">Diff</string>
     <string name="group_diff">Diff (%s)</string>
     <string name="group_delete_confirm_prompt">Are you sure you want to remove this group?</string>
@@ -58,6 +58,8 @@
     <string name="allow_access_sum">Bind inbound servers to 0.0.0.0</string>
     <string name="inbound_settings">Inbound Settings</string>
     <string name="general_settings">App Settings</string>
+    <string name="language">Language</string>
+    <string name="language_summary">Select your preferred language</string>
     <string name="require_http">Enable HTTP inbound</string>
     <string name="cag_ws">WebSocket Settings</string>
     <string name="ws_max_early_data" translatable="false">Max early data</string>
@@ -359,8 +361,7 @@
     <string name="subscription_user_agent">UserAgent</string>
     <string name="confirm">Confirm</string>
     <string name="missing_plugin">Missing Plugin</string>
-    <string name="profile_requiring_plugin">Profile %s requires the %s plugin to be installed, but
-        it was not found.</string>
+    <string name="profile_requiring_plugin" formatted="false">Profile requires plugin: %1$s</string>
     <string name="action_learn_more">LEARN MORE</string>
     <string name="action_download">DOWNLOAD</string>
     <string name="install_from_play_store">Install from Play Store</string>
@@ -378,7 +379,7 @@
     <string name="subscription_update_message">Updating %s …</string>
     <string name="group_filter">Filter</string>
     <string name="subscription_used">%s Used</string>
-    <string name="subscription_traffic">%s Used / %s Remaining</string>
+    <string name="subscription_traffic" formatted="false">Subscription traffic: %1$s</string>
     <string name="subscription_expire">Expire: %s</string>
     <string name="subscription_import">Import subscription</string>
     <string name="subscription_import_message">Confirm you want to import subscription %s? If you
@@ -403,9 +404,7 @@
     <string name="group_order_origin">Origin</string>
     <string name="group_order_by_name">By Name</string>
     <string name="group_order_by_delay">By Delay</string>
-    <string name="plugin_exists_but_on_shit_system">Profile %s requires the %s plugin, but your
-        proprietary equipment vendor (usually surveillance capital giants and malware maker)
-        tampered with your Android, making the plugin unusable.</string>
+    <string name="plugin_exists_but_on_shit_system" formatted="false">Plugin exists but on unsupported system: %1$s</string>
 
     <string name="shadowsocks_plugin_simple_obfs">Simple Obfs (Shadowsocks Android Plugin)</string>
     <string name="shadowsocks_plugin_v2ray">V2Ray (Shadowsocks Android Plugin)</string>
@@ -504,10 +503,8 @@
     <string name="tuic_disable_sni">Disable SNI</string>
     <string name="tuic_reduce_rtt">Enable 0-RTT QUIC handshake</string>
 
-    <string name="please_update">Your APP is too old (%s). And will stop working at %s. Please
-        update!</string>
-    <string name="please_update_force">Your APP is too old (%s). And has been stopped working at %s.
-        Please update!</string>
+    <string name="please_update" formatted="false">Please update: %1$s</string>
+    <string name="please_update_force" formatted="false">Update required: %1$s</string>
     <string name="connection_test_delete_unavailable">Clear unavailable</string>
     <string name="move">Move</string>
     <string name="exe_prefer_provider">Plugin Preferred Provider</string>
@@ -545,7 +542,23 @@
     <string name="tls_camouflage_settings">TLS Camouflage Settings</string>
     <string name="test_concurrency">Test concurrency</string>
     <string name="mux_type">Mux protocol</string>
-    <string name="sniff_routing">sniff result for routing</string>
+    <string name="sniff_routing">Sniff Routing</string>
+    <string name="bandwidth_limit">Bandwidth Limit</string>
+    <string name="bandwidth_limit_summary">Set data usage limit for this profile</string>
+    <string name="bandwidth_limit_enabled">Enable Bandwidth Limit</string>
+    <string name="bandwidth_limit_value">Limit Value</string>
+    <string name="bandwidth_limit_unit">Limit Unit</string>
+    <string name="bandwidth_usage">Data Usage</string>
+    <string name="bandwidth_remaining">Remaining</string>
+    <string name="bandwidth_limit_reached">Bandwidth limit reached!</string>
+    <string name="bandwidth_limit_reached_message">The data usage limit for %s has been reached.</string>
+    <string name="bandwidth_reset">Reset Usage</string>
+    <string name="bandwidth_reset_confirm">Reset data usage for this profile?</string>
+    <string name="bandwidth_kb">KB</string>
+    <string name="bandwidth_mb">MB</string>
+    <string name="bandwidth_gb">GB</string>
+    <string name="bandwidth_tb">TB</string>
+    <string name="latency">Latency</string>
     <string name="resolve_server">Resolve the server address according to the IPv6 policy</string>
     <string name="auto_select_proxy_apps">Auto select proxy apps</string>
     <string name="auto_select_proxy_apps_message">Auto select proxy apps, this will clear your
@@ -574,4 +587,18 @@
     <string name="ip_address">IP Address</string>
     <string name="routes_settings">Routes Settings</string>
     <string name="log_size">Log buffer size (Kbyte)</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_connecting">Connecting</string>
+    <string name="status_unknown">Unknown</string>
+    <string name="favorite">Favorite</string>
+    <string name="favorites">Favorites</string>
+    <string name="no_favorites">No favorite proxies</string>
+    <string name="favorite_added">Added to favorites</string>
+    <string name="favorite_removed">Removed from favorites</string>
+    <string name="select_proxies">Select Proxies</string>
+    <string name="select_all">Select All</string>
+    <string name="deselect_all">Deselect All</string>
+    <string name="delete_selected">Delete Selected</string>
+    <string name="delete_selected_confirm">Delete %d selected proxies?</string>
+    <string name="proxies_deleted">%d proxies deleted</string>
 </resources>

@@ -55,6 +55,13 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
             Theme.applyNightTheme()
             true
         }
+        val language = findPreference<SimpleMenuPreference>(Key.LANGUAGE)!!
+        language.setOnPreferenceChangeListener { _, newLanguage ->
+            DataStore.language = newLanguage as String
+            // Restart the activity to apply the new language
+            requireActivity().recreate()
+            true
+        }
         val mixedPort = findPreference<EditTextPreference>(Key.MIXED_PORT)!!
         val allowAccess = findPreference<Preference>(Key.ALLOW_ACCESS)!!
         val appendHttpProxy = findPreference<SwitchPreference>(Key.APPEND_HTTP_PROXY)!!
